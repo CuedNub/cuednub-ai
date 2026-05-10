@@ -1,18 +1,16 @@
 /*
   File    : background.js
-  Fungsi  : Popup manager dengan context menu
+  Fungsi  : Popup manager dengan context menu + pilihan tema
   Lokasi  : js/background.js
-  Versi   : 0.7
+  Versi   : 0.8
 
   Aksi:
-  - Klik kanan icon → pilih Arena.ai / Gemini / Minimize / Restore
-  - Klik kiri icon  → Restore popup terakhir (atau buka default)
-  - Shortcut        → Minimize / Restore
-
-  Aturan:
-  - Popup hanya satu sepanjang waktu
-  - Pilih target lain → URL popup diganti, bukan buat baru
-  - Window ID dan tab ID disimpan di chrome.storage.local
+  - Klik kanan icon:
+    - Pilih target: Arena.ai / Gemini
+    - Pilih tema: Cyan Outline / Hacker Green
+    - Minimize / Restore
+  - Klik kiri icon:
+    - Restore popup terakhir (atau buka default)
 */
 
 importScripts("../config/urls.js");
@@ -20,8 +18,10 @@ importScripts("../config/urls.js");
 const STORAGE_KEY_WINDOW = "popupWindowId";
 const STORAGE_KEY_TAB = "popupTabId";
 const STORAGE_KEY_LAST_TARGET = "lastTarget";
+const STORAGE_KEY_THEME = "selectedTheme";
 const POPUP_WIDTH = 500;
 const POPUP_HEIGHT = 700;
+const DEFAULT_THEME = "hacker-green";
 
 let popupWindowId = null;
 let popupTabId = null;
@@ -82,6 +82,10 @@ function getLastTarget(callback) {
   });
 }
 
+function saveTheme(themeId) {
+  chrome.storage.local.set({ [STORAGE_KEY_THEME]: themeId });
+}
+
 // ========================================
 // URL HELPERS
 // ========================================
@@ -92,11 +96,27 @@ function getUrlByTargetId(targetId) {
 }
 
 // ========================================
+// SEND THEME TO POPUP TAB
+// ========================================
+
+function sendThemeToPopup(themeId) {
+  resolveState((windowId, tabId) => {
+    if (tabId === null) return;
+
+    chrome.tabs.sendMessage(tabId, {
+      type: "CUEDNUB_CHANGE_THEME",
+      theme: themeId
+    }).catch(() => {});
+  });
+}
+
+// ========================================
 // CONTEXT MENU
 // ========================================
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.removeAll(() => {
+    // URL targets
     for (const target of URL_TARGETS) {
       chrome.contextMenus.create({
         id: "open-" + target.id,
@@ -111,6 +131,26 @@ chrome.runtime.onInstalled.addListener(() => {
       contexts: ["action"]
     });
 
+    // Tema
+    chrome.contextMenus.create({
+      id: "theme-cyan-outline",
+      title: "Tema: Cyan Outline",
+      contexts: ["action"]
+    });
+
+    chrome.contextMenus.create({
+      id: "theme-hacker-green",
+      title: "Tema: Hacker Green",
+      contexts: ["action"]
+    });
+
+    chrome.contextMenus.create({
+      id: "separator-2",
+      type: "separator",
+      contexts: ["action"]
+    });
+
+    // Kontrol
     chrome.contextMenus.create({
       id: "minimize-popup",
       title: "Minimize",
@@ -135,6 +175,18 @@ chrome.contextMenus.onClicked.addListener((info) => {
 
   if (menuId === "restore-popup") {
     restorePopup();
+    return;
+  }
+
+  if (menuId === "theme-cyan-outline") {
+    saveTheme("cyan-outline");
+    sendThemeToPopup("cyan-outline");
+    return;
+  }
+
+  if (menuId === "theme-hacker-green") {
+    saveTheme("hacker-green");
+    sendThemeToPopup("hacker-green");
     return;
   }
 

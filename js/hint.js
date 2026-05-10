@@ -1,44 +1,70 @@
 /*
   File    : hint.js
   Fungsi  : Mode System, Hint Mode, Scroll Keyboard, Mode Indicator,
-            CSS Injection tema Cyan Outline (text + border only)
+            CSS Injection multi-tema
   Target  : Halaman arena.ai dan gemini.google.com di popup
   Lokasi  : js/hint.js
-  Versi   : 0.9
+  Versi   : 1.0
 
-  Tema Cyan Outline:
-  - Background    : tidak diubah (ikut website asli)
-  - Teks Utama    : #C4F1F9
-  - Teks Sekunder : #97D9E1
-  - Border        : #2D9CDB
-  - Aksen         : #0BC5EA
+  Tema:
+  - Cyan Outline: teks cyan, border biru
+  - Hacker Green: teks hijau, border hijau gelap
+
+  Pilih tema via context menu (klik kanan icon extension)
 */
 
 (() => {
   // ========================================
-  // CSS INJECTION — CYAN OUTLINE
+  // TEMA DEFINITIONS
   // ========================================
 
-  function injectTheme() {
-    if (document.getElementById("cuednub-cyan-outline")) return;
+  const THEMES = {
+    "cyan-outline": {
+      id: "cyan-outline",
+      textPrimary: "#C4F1F9",
+      textSecondary: "#97D9E1",
+      border: "#2D9CDB",
+      accent: "#0BC5EA",
+      accentHover: "#63E5FF",
+      scrollThumb: "#2D9CDB",
+      scrollThumbHover: "#0BC5EA"
+    },
+    "hacker-green": {
+      id: "hacker-green",
+      textPrimary: "#33FF33",
+      textSecondary: "#20CC20",
+      border: "#1A8C1A",
+      accent: "#00FF00",
+      accentHover: "#66FF66",
+      scrollThumb: "#1A8C1A",
+      scrollThumbHover: "#00FF00"
+    }
+  };
 
-    const style = document.createElement("style");
-    style.id = "cuednub-cyan-outline";
-    style.textContent = [
+  const DEFAULT_THEME = "hacker-green";
+  const STYLE_ID = "cuednub-theme-style";
+  let currentThemeId = DEFAULT_THEME;
+
+  // ========================================
+  // CSS INJECTION
+  // ========================================
+
+  function buildThemeCSS(theme) {
+    return [
       "/* === TEXT === */",
       "html, body,",
       "div, section, article, aside, nav, main,",
       "header, footer, form, fieldset, details,",
       "summary, dialog, pre, code {",
-      "  color: #C4F1F9 !important;",
+      "  color: " + theme.textPrimary + " !important;",
       "}",
       "",
       "p, span, li, td, th, dt, dd, label, legend {",
-      "  color: #C4F1F9 !important;",
+      "  color: " + theme.textPrimary + " !important;",
       "}",
       "",
       "h1, h2, h3, h4, h5, h6 {",
-      "  color: #C4F1F9 !important;",
+      "  color: " + theme.textPrimary + " !important;",
       "}",
       "",
       "/* === SECONDARY TEXT === */",
@@ -50,16 +76,16 @@
       "[class*='label'],",
       "[class*='placeholder'],",
       "[class*='muted'] {",
-      "  color: #97D9E1 !important;",
+      "  color: " + theme.textSecondary + " !important;",
       "}",
       "",
       "/* === LINKS === */",
       "a, a:visited {",
-      "  color: #0BC5EA !important;",
+      "  color: " + theme.accent + " !important;",
       "}",
       "",
       "a:hover {",
-      "  color: #63E5FF !important;",
+      "  color: " + theme.accentHover + " !important;",
       "}",
       "",
       "/* === BORDERS === */",
@@ -68,7 +94,7 @@
       "summary, dialog, pre, code, table, tr, td, th, hr,",
       "input, textarea, select, button,",
       "[role='button'] {",
-      "  border-color: #2D9CDB !important;",
+      "  border-color: " + theme.border + " !important;",
       "}",
       "",
       "/* === BUTTONS === */",
@@ -76,27 +102,27 @@
       "input[type='button'],",
       "input[type='submit'],",
       "input[type='reset'] {",
-      "  color: #0BC5EA !important;",
-      "  border-color: #2D9CDB !important;",
+      "  color: " + theme.accent + " !important;",
+      "  border-color: " + theme.border + " !important;",
       "}",
       "",
       "button:hover, [role='button']:hover {",
-      "  color: #63E5FF !important;",
+      "  color: " + theme.accentHover + " !important;",
       "}",
       "",
       "/* === INPUTS === */",
       "input, textarea, select {",
-      "  color: #C4F1F9 !important;",
-      "  border-color: #2D9CDB !important;",
+      "  color: " + theme.textPrimary + " !important;",
+      "  border-color: " + theme.border + " !important;",
       "}",
       "",
       "input::placeholder, textarea::placeholder {",
-      "  color: #97D9E1 !important;",
+      "  color: " + theme.textSecondary + " !important;",
       "}",
       "",
       "input:focus, textarea:focus, select:focus {",
-      "  border-color: #0BC5EA !important;",
-      "  outline-color: #0BC5EA !important;",
+      "  border-color: " + theme.accent + " !important;",
+      "  outline-color: " + theme.accent + " !important;",
       "}",
       "",
       "/* === SCROLLBAR === */",
@@ -106,12 +132,12 @@
       "}",
       "",
       "::-webkit-scrollbar-thumb {",
-      "  background: #2D9CDB !important;",
+      "  background: " + theme.scrollThumb + " !important;",
       "  border-radius: 4px !important;",
       "}",
       "",
       "::-webkit-scrollbar-thumb:hover {",
-      "  background: #0BC5EA !important;",
+      "  background: " + theme.scrollThumbHover + " !important;",
       "}",
       "",
       "/* === CUEDNUB UI PROTECTION === */",
@@ -142,15 +168,39 @@
       "  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;",
       "}"
     ].join("\n");
-
-    document.documentElement.appendChild(style);
   }
 
-  injectTheme();
+  function applyTheme(themeId) {
+    const theme = THEMES[themeId] || THEMES[DEFAULT_THEME];
+    currentThemeId = theme.id;
+
+    const existing = document.getElementById(STYLE_ID);
+    if (existing) {
+      existing.textContent = buildThemeCSS(theme);
+    } else {
+      const style = document.createElement("style");
+      style.id = STYLE_ID;
+      style.textContent = buildThemeCSS(theme);
+      document.documentElement.appendChild(style);
+    }
+  }
+
+  function loadAndApplyTheme() {
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(["selectedTheme"], (result) => {
+        const themeId = result.selectedTheme || DEFAULT_THEME;
+        applyTheme(themeId);
+      });
+    } else {
+      applyTheme(DEFAULT_THEME);
+    }
+  }
+
+  loadAndApplyTheme();
 
   const themeObserver = new MutationObserver(() => {
-    if (!document.getElementById("cuednub-cyan-outline")) {
-      injectTheme();
+    if (!document.getElementById(STYLE_ID)) {
+      applyTheme(currentThemeId);
     }
   });
 
@@ -158,6 +208,18 @@
     childList: true,
     subtree: true
   });
+
+  // ========================================
+  // LISTEN FOR THEME CHANGE MESSAGE
+  // ========================================
+
+  if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.onMessage) {
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message && message.type === "CUEDNUB_CHANGE_THEME" && message.theme) {
+        applyTheme(message.theme);
+      }
+    });
+  }
 
   // ========================================
   // KONSTANTA
