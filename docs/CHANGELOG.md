@@ -1,5 +1,25 @@
 # CHANGELOG — CuedNub Ai
 
+## v0.4.1
+- menambahkan 2 pilihan tema di context menu:
+  - Tema: Cyan Outline
+  - Tema: Hacker Green
+- memperbarui js/background.js:
+  - menyimpan tema terpilih ke chrome.storage.local
+  - mengirim pesan ke popup untuk ganti tema langsung
+- memperbarui js/hint.js:
+  - mendukung multi-tema
+  - memuat tema terakhir dari storage saat halaman dibuka
+  - menerima pesan perubahan tema dari background.js
+- menetapkan Hacker Green sebagai tema default
+- tema custom tetap tidak mengubah background website
+- tema custom fokus pada:
+  - teks
+  - border
+  - aksen
+  - scrollbar
+- Hint Mode tetap terlihat jelas setelah sistem tema ditambahkan
+
 ## v0.4.0
 - menambahkan popup manager berbasis context menu
 - klik kanan icon extension sekarang menampilkan:
@@ -26,7 +46,7 @@
   - menambahkan CSS injection custom
   - sempat diuji tema background gelap penuh
   - final dipilih mode Cyan Outline
-- tema final:
+- tema final pada tahap ini:
   - background tidak diubah
   - teks diubah ke cyan muda
   - border diubah ke cyan/biru
