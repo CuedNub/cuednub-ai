@@ -1,29 +1,164 @@
 /*
   File    : hint.js
-  Fungsi  : Mode System, Hint Mode, Scroll Keyboard, Mode Indicator
-  Target  : Halaman arena.ai di popup
+  Fungsi  : Mode System, Hint Mode, Scroll Keyboard, Mode Indicator,
+            CSS Injection tema Cyan Outline (text + border only)
+  Target  : Halaman arena.ai dan gemini.google.com di popup
   Lokasi  : js/hint.js
-  Versi   : 0.5
+  Versi   : 0.9
 
-  Mode:
-  - NORMAL : j/k/d/u/gg/G untuk scroll, F untuk hint
-  - INSERT : keyboard normal untuk mengetik
-  - HINT   : ketik label hint untuk klik elemen
-
-  Kontrol:
-  - Esc    : kembali ke NORMAL dari mode apapun
-  - F      : aktifkan HINT dari NORMAL
-  - j/k    : scroll sedikit (NORMAL)
-  - d/u    : scroll setengah halaman (NORMAL)
-  - gg     : scroll ke paling atas (NORMAL)
-  - G      : scroll ke paling bawah (NORMAL)
-
-  Fix v0.5:
-  - Scroll mencari elemen scrollable yang benar
-  - Hint mendeteksi input, textarea, contenteditable
+  Tema Cyan Outline:
+  - Background    : tidak diubah (ikut website asli)
+  - Teks Utama    : #C4F1F9
+  - Teks Sekunder : #97D9E1
+  - Border        : #2D9CDB
+  - Aksen         : #0BC5EA
 */
 
 (() => {
+  // ========================================
+  // CSS INJECTION — CYAN OUTLINE
+  // ========================================
+
+  function injectTheme() {
+    if (document.getElementById("cuednub-cyan-outline")) return;
+
+    const style = document.createElement("style");
+    style.id = "cuednub-cyan-outline";
+    style.textContent = [
+      "/* === TEXT === */",
+      "html, body,",
+      "div, section, article, aside, nav, main,",
+      "header, footer, form, fieldset, details,",
+      "summary, dialog, pre, code {",
+      "  color: #C4F1F9 !important;",
+      "}",
+      "",
+      "p, span, li, td, th, dt, dd, label, legend {",
+      "  color: #C4F1F9 !important;",
+      "}",
+      "",
+      "h1, h2, h3, h4, h5, h6 {",
+      "  color: #C4F1F9 !important;",
+      "}",
+      "",
+      "/* === SECONDARY TEXT === */",
+      "[class*='secondary'],",
+      "[class*='sub'],",
+      "[class*='meta'],",
+      "[class*='caption'],",
+      "[class*='description'],",
+      "[class*='label'],",
+      "[class*='placeholder'],",
+      "[class*='muted'] {",
+      "  color: #97D9E1 !important;",
+      "}",
+      "",
+      "/* === LINKS === */",
+      "a, a:visited {",
+      "  color: #0BC5EA !important;",
+      "}",
+      "",
+      "a:hover {",
+      "  color: #63E5FF !important;",
+      "}",
+      "",
+      "/* === BORDERS === */",
+      "div, section, article, aside, nav, main,",
+      "header, footer, form, fieldset, details,",
+      "summary, dialog, pre, code, table, tr, td, th, hr,",
+      "input, textarea, select, button,",
+      "[role='button'] {",
+      "  border-color: #2D9CDB !important;",
+      "}",
+      "",
+      "/* === BUTTONS === */",
+      "button, [role='button'],",
+      "input[type='button'],",
+      "input[type='submit'],",
+      "input[type='reset'] {",
+      "  color: #0BC5EA !important;",
+      "  border-color: #2D9CDB !important;",
+      "}",
+      "",
+      "button:hover, [role='button']:hover {",
+      "  color: #63E5FF !important;",
+      "}",
+      "",
+      "/* === INPUTS === */",
+      "input, textarea, select {",
+      "  color: #C4F1F9 !important;",
+      "  border-color: #2D9CDB !important;",
+      "}",
+      "",
+      "input::placeholder, textarea::placeholder {",
+      "  color: #97D9E1 !important;",
+      "}",
+      "",
+      "input:focus, textarea:focus, select:focus {",
+      "  border-color: #0BC5EA !important;",
+      "  outline-color: #0BC5EA !important;",
+      "}",
+      "",
+      "/* === SCROLLBAR === */",
+      "::-webkit-scrollbar {",
+      "  width: 8px !important;",
+      "  height: 8px !important;",
+      "}",
+      "",
+      "::-webkit-scrollbar-thumb {",
+      "  background: #2D9CDB !important;",
+      "  border-radius: 4px !important;",
+      "}",
+      "",
+      "::-webkit-scrollbar-thumb:hover {",
+      "  background: #0BC5EA !important;",
+      "}",
+      "",
+      "/* === CUEDNUB UI PROTECTION === */",
+      "#cuednub-mode-indicator {",
+      "  z-index: 2147483646 !important;",
+      "}",
+      "",
+      "#cuednub-hint-root {",
+      "  z-index: 2147483647 !important;",
+      "}",
+      "",
+      ".cuednub-hint-marker {",
+      "  background: #facc15 !important;",
+      "  color: #111827 !important;",
+      "  border: 1px solid #111827 !important;",
+      "  border-radius: 6px !important;",
+      "  font: bold 12px/1 Arial, sans-serif !important;",
+      "  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;",
+      "  pointer-events: none !important;",
+      "}",
+      "",
+      "#cuednub-hint-status {",
+      "  background: rgba(17, 24, 39, 0.95) !important;",
+      "  color: #ffffff !important;",
+      "  border: 1px solid rgba(255, 255, 255, 0.15) !important;",
+      "  border-radius: 8px !important;",
+      "  font: 12px/1.4 Arial, sans-serif !important;",
+      "  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;",
+      "}"
+    ].join("\n");
+
+    document.documentElement.appendChild(style);
+  }
+
+  injectTheme();
+
+  const themeObserver = new MutationObserver(() => {
+    if (!document.getElementById("cuednub-cyan-outline")) {
+      injectTheme();
+    }
+  });
+
+  themeObserver.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
   // ========================================
   // KONSTANTA
   // ========================================
@@ -213,7 +348,7 @@
     ensureIndicator();
 
     const colors = MODE_COLORS[currentMode];
-    indicatorBox.textContent = `[ ${currentMode} ]`;
+    indicatorBox.textContent = "[ " + currentMode + " ]";
     indicatorBox.style.background = colors.bg;
     indicatorBox.style.color = colors.text;
   }
@@ -314,8 +449,8 @@
     marker.className = "cuednub-hint-marker";
     marker.textContent = label;
     marker.style.position = "fixed";
-    marker.style.left = `${Math.max(4, rect.left)}px`;
-    marker.style.top = `${Math.max(4, rect.top - 10)}px`;
+    marker.style.left = Math.max(4, rect.left) + "px";
+    marker.style.top = Math.max(4, rect.top - 10) + "px";
     marker.style.padding = "2px 6px";
     marker.style.background = "#facc15";
     marker.style.color = "#111827";
@@ -388,8 +523,8 @@
     }
 
     const statusText = hintBuffer
-      ? `HINT: ${hintBuffer} (${visibleCount} cocok) | Esc batal`
-      : `HINT aktif (${visibleCount} target) | ketik label | Esc batal`;
+      ? "HINT: " + hintBuffer + " (" + visibleCount + " cocok) | Esc batal"
+      : "HINT aktif (" + visibleCount + " target) | ketik label | Esc batal";
 
     updateHintStatus(statusText);
   }
@@ -454,7 +589,7 @@
 
     if (partialMatches.length === 0) {
       hintBuffer = hintBuffer.slice(0, -1);
-      updateHintStatus(`HINT: "${hintBuffer || "-"}" tidak cocok | Esc batal`);
+      updateHintStatus("HINT: \"" + (hintBuffer || "-") + "\" tidak cocok | Esc batal");
       renderHints();
       return;
     }
@@ -494,7 +629,6 @@
   function onKeyDown(event) {
     if (event.ctrlKey || event.altKey || event.metaKey) return;
 
-    // ---- ESC: kembali ke NORMAL dari mode apapun ----
     if (event.key === "Escape") {
       if (currentMode === MODE.HINT) {
         event.preventDefault();
@@ -518,10 +652,8 @@
       return;
     }
 
-    // ---- MODE INSERT: biarkan semua key lewat ----
     if (currentMode === MODE.INSERT) return;
 
-    // ---- MODE HINT ----
     if (currentMode === MODE.HINT) {
       if (event.key === "Backspace") {
         event.preventDefault();
@@ -544,11 +676,9 @@
       return;
     }
 
-    // ---- MODE NORMAL ----
     if (currentMode === MODE.NORMAL) {
       const key = event.key;
 
-      // F = aktifkan Hint Mode
       if (key.toLowerCase() === "f") {
         event.preventDefault();
         event.stopPropagation();
@@ -556,7 +686,6 @@
         return;
       }
 
-      // j = scroll bawah sedikit
       if (key === "j") {
         event.preventDefault();
         event.stopPropagation();
@@ -564,7 +693,6 @@
         return;
       }
 
-      // k = scroll atas sedikit
       if (key === "k") {
         event.preventDefault();
         event.stopPropagation();
@@ -572,7 +700,6 @@
         return;
       }
 
-      // d = scroll bawah setengah halaman
       if (key === "d") {
         event.preventDefault();
         event.stopPropagation();
@@ -580,7 +707,6 @@
         return;
       }
 
-      // u = scroll atas setengah halaman
       if (key === "u") {
         event.preventDefault();
         event.stopPropagation();
@@ -588,7 +714,6 @@
         return;
       }
 
-      // G (Shift+g) = scroll ke paling bawah
       if (key === "G") {
         event.preventDefault();
         event.stopPropagation();
@@ -596,7 +721,6 @@
         return;
       }
 
-      // g = awal dari gg (scroll ke paling atas)
       if (key === "g") {
         event.preventDefault();
         event.stopPropagation();
